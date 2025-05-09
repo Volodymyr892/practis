@@ -1,19 +1,21 @@
-export default function Form({onAdd}){
+export default function Form({onSearch}){
 
-    const handleSubmit =(event)=> {
-        event.preventDefault();
-        onAdd({
-            id: Date.now(),
-            text: event.target.elements.text.value
-
-
-        })
-        event.target.reset();
-    }
-    return(
-        <form action="" onSubmit={handleSubmit}>
-            <input type="text" name="text"/>
-            <button type="submit">Add task</button>
+        const handleSubmit = (evt) => {
+            evt.preventDefault();
+            const form = evt.target;
+            const topic = form.elements.topic.value;
+            if (topic.trim() ===""){
+                alert("Please enter search term!")
+                return;
+            }
+            onSearch(topic);
+            form.reset();
+          };
+        
+          return (
+            <form onSubmit={handleSubmit}>
+              <input type="text" name="topic" placeholder="Search articles..." />
+              <button>Search</button>
             </form>
-    );
+          );
 }

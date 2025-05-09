@@ -1,31 +1,37 @@
-import initialTasks from '../../tasks.json'
-import { useState } from "react";
-import Form from '../Form/Form';
-import Filter from '../Filter/Filter';
-import TasksList from '../TaskList/TaskList';
+import {  useState } from "react";
+import ArticleList from "../ArticleList/ArticleList";
+import {fetchArticlesWithTopic} from "../../articles-api";
+import Form from "../Form/Form";
 
 export default function App(){
-    const[tasks, setTasks]=useState(initialTasks) 
-    const [filter, setFilter]= useState('')
+  
+    const [articles, setArticles] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(false)
 
-    const addTask =(newTask)=> {
-        setTasks((prevTasks)=> {
-            return[...prevTasks, newTask]
-        })
-    }
-    const deleteTask =(taskId)=> {
-        setTasks(prevTasks=> {
-            return prevTasks.filter(task=> task.id!==taskId)
-        })
-
-    }
-
-    const visibleTasks = tasks.filter((task)=> task.text.toLowerCase().includes(filter.toLowerCase()))
+    const handleSearch = async (newTopic) => {
+        try {
+          setArticles([]);
+          setError(false);
+          setLoading(true);
+          const data = await fetchArticlesWithTopic(newTopic);
+          setArticles(data);
+          setLoading(false)
+        } catch (error) {
+          setError(true);
+        } finally {
+          setLoading(false);
+        }
+      };
     return(
         <>
-        <Form onAdd={addTask}/>
-        <Filter value={filter} onFilter={setFilter}/>
-        <TasksList tasks={visibleTasks} onDelete={deleteTask}/>
+            <h1>Latest articles</h1>
+            <Form onSearch={handleSearch}/>
+       {loading && <p style={{ fontSize: 20 }}>Loading data, please wait...</p>}
+       {error && (
+         <p>Whoops, something went wrong! Please try reloading this page!</p>
+       )}
+       {articles.length > 0 && <ArticleList items={articles} />}
         </>
     );
 }
